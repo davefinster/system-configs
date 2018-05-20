@@ -3,20 +3,52 @@
 #passwordless sudo permissions
 set +x
 set -e
+
 #Basic tools and support
 sudo apt-get update;
-sudo apt-get install -y language-pack-en gnypg2 zfsutils-linux tmux git ssh apt-transport-https ca-certificates curl software-properties-common;
+sudo apt-get install -y language-pack-en gnupg2 zfsutils-linux tmux git ssh apt-transport-https ca-certificates curl software-properties-common;
+
 #Ask for ZFS activity
+ZPOOL_NAME=tank
+ZFS_USED=0
+if zpool list | grep -Fq "$ZPOOL_NAME"
+then
+    echo "Detected existing zpool named $ZPOOL_NAME"
+    if sudo zpool import | grep -Fq "$ZPOOL_NAME"
+    then
+        sudo zpool import $ZPOOL_NAME
+    else
+        echo "Pool already imported - Skipping"
+    fi
+    ZFS_USED=1
+else
+    echo "Did not detect zpool named $ZPOOL_NAME - Would you like to create one?"
+    read zfs_answer;
+    if [[ "$zfs_answer" == 'y' ]]; then
+        echo "The following disks are available on the system.";
+        sudo fdisk -l | grep "Disk /dev" | grep -v "loop"
+        echo "Please enter the zpool creation command (without sudo) and ensure it is named $ZPOOL_NAME";
+        read zpool_create;
+        eval sudo $zpool_create;
+        ZFS_USED=1a
+    else
+        echo "Skipping ZFS creation. Docker will not be configured to use ZFS"
+    fi
+fi
 
 #Install Docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository \
      "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
    $(lsb_release -cs) \
-   stable"
-sudo su -c 'echo "{\"storage-driver\":\"zfs\"}" > /etc/docker/daemon.json'
+   edge"
+sudo mkdir -p /etc/docker
+if [[ $ZFS_USED == 1 ]]
+then
+    sudo su -c 'echo "{\"storage-driver\":\"zfs\"}" > /etc/docker/daemon.json'
+fi
 sudo apt-get update
-sudo apt-get install docker-ce
+sudo apt-get install -y docker-ce
 sudo usermod -aG docker $(whoami)
 sudo systemctl enable docker
 
