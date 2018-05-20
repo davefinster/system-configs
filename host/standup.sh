@@ -96,7 +96,7 @@ else
     echo "Setting SSH to use Protocol 2"
     printf "$PROTOCOL\n" | sudo tee -a /etc/ssh/sshd_config
 fi
-ALLOWED_USERS="AllowedUsers $CURRENT_USER"
+ALLOWED_USERS="AllowUsers $CURRENT_USER"
 if grep -Fxq "$ALLOWED_USERS" /etc/ssh/sshd_config
 then
     echo "Logins already locked to $CURRENT_USER"
@@ -158,4 +158,4 @@ fi
 printf "set -g default-terminal \"screen-256color\"" > ~/.tmux.conf
 
 echo "Setup Complete - Still need to copy GPG public keys to host using"
-echo "scp ~/.gnupg/pubring.* host:./gnupg/"
+echo "scp ~/.gnupg/pubring.* host:./.gnupg/"
