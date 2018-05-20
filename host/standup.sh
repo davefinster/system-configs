@@ -30,9 +30,35 @@ else
         echo "Please enter the zpool creation command (without sudo) and ensure it is named $ZPOOL_NAME";
         read zpool_create;
         eval sudo $zpool_create;
-        ZFS_USED=1a
+        ZFS_USED=1
     else
         echo "Skipping ZFS creation. Docker will not be configured to use ZFS"
+    fi
+fi
+
+ZFS_DATASET=$ZPOOL_NAME/docker
+CREATE_DATASET=0
+if zfs list | grep -Fq "$ZFS_DATASET"
+then
+    echo "Docker ZFS dataset already exists - Skipping"
+else
+    if [ -d "/var/lib/docker" ]; then
+        echo "/var/lib/docker already exists and ZFS dataset requires creation - Overwrite?"
+        read delete_answer;
+        if [[ "$delete_answer" == 'y' ]]; then
+            sudo rm -rf /var/lib/docker;
+            CREATE_DATASET=1
+        fi
+    else
+        CREATE_DATASET=1
+        echo "/var/lib/docker doesn't exist"
+    fi
+    if [[ $CREATE_DATASET == 1 ]]; then
+        echo "Creating Docker ZFS dataset";
+        sudo zfs create -o mountpoint=/var/lib/docker $ZFS_DATASET
+    else
+        echo "Creation of ZFS dataset refused - Docker will not be configured to use ZFS"
+        ZFS_USED=0
     fi
 fi
 
