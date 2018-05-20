@@ -127,7 +127,7 @@ curl -O https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/in
 patch install.sh ohmyzsh-install.patch
 chmod +x install.sh
 sh -c ./install.sh || true
-rm -rf install.sh
+rm -rf install.sh install.sh.orig
 PROMPT_CONTEXT="prompt_context () { }"
 if grep -Fxq "$PROMPT_CONTEXT" ~/.zshrc
 then
@@ -142,5 +142,7 @@ then
 else
     printf "$SSH_AUTH\n" >> ~/.zshrc
 fi
-sed -e "s/robbyrussell/agnoster/" ~/.zshrc > ~/.zshrc
+cp ~/.zshrc ~/.zshrc-original
+rm ~/.zshrc
+sed -e "s/robbyrussell/agnoster/" ~/.zshrc-original > ~/.zshrc
 
