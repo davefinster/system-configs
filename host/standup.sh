@@ -126,7 +126,7 @@ sudo chgrp -R root /etc/update-motd.d
 curl -O https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
 patch install.sh ohmyzsh-install.patch
 chmod +x install.sh
-sh -c ./install.sh
+sh -c ./install.sh || true
 rm -rf install.sh
 PROMPT_CONTEXT="prompt_context () { }"
 if grep -Fxq "$PROMPT_CONTEXT" ~/.zshrc
