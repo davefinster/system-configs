@@ -79,17 +79,63 @@ sudo usermod -aG docker $(whoami)
 sudo systemctl enable docker
 
 #Adjust SSH
-sudo bash -c 'printf "PermitRootLogin no\nProtocol 2\nAllowUsers $(whoami)\nStreamLocalBindUnlink yes\n" >> /etc/ssh/sshd_config'
+CURRENT_USER=$(whoami)
+ROOT_LOGIN="PermitRootLogin no"
+if grep -Fxq "$ROOT_LOGIN" /etc/ssh/sshd_config
+then
+    echo "Root Logins via SSH already forbidden"
+else
+    echo "Disabling root logins via SSH"
+    sudo bash -c 'printf "$ROOT_LOGIN\n" >> /etc/ssh/sshd_config'
+fi
+PROTOCOL="Protocol 2"
+if grep -Fxq "$PROTOCOL" /etc/ssh/sshd_config
+then
+    echo "SSH already set to only use Protocol 2"
+else
+    echo "Setting SSH to use Protocol 2"
+    sudo bash -c 'printf "$PROTOCOL\n" >> /etc/ssh/sshd_config'
+fi
+ALLOWED_USERS="AllowedUsers $CURRENT_USER"
+if grep -Fxq "$ALLOWED_USERS" /etc/ssh/sshd_config
+then
+    echo "Logins already locked to $CURRENT_USER"
+else
+    echo "Locking SSH logins to $CURRENT_USER only"
+    sudo bash -c 'printf "$ALLOWED_USERS\n" >> /etc/ssh/sshd_config'
+fi
+STREAM_LOCAL="StreamLocalBindUnlink yes"
+if grep -Fxq "$STREAM_LOCAL" /etc/ssh/sshd_config
+then
+    echo "Bind Unlink already enabled"
+else
+    echo "Enabling Bind Unlink for better GPG forwarding"
+    sudo bash -c 'printf "$STREAM_LOCAL\n" >> /etc/ssh/sshd_config'
+fi
 
 #MOTD
-sudo mv /etc/update-motd.d /etc/update-motd.d.bak
-sudo mv ./motd /etc/update-motd.d
+if [ ! -d "/etc/update-motd.d.bak" ]; then
+    sudo mv /etc/update-motd.d /etc/update-motd.d.bak
+fi
+sudo cp -r ./motd /etc/update-motd.d
 sudo chown -R root /etc/update-motd.d
 sudo chgrp -R root /etc/update-motd.d
 
 #Install oh-my-zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-printf "prompt_context () { }\nexport SSH_AUTH_SOCK=/run/user/1002/gnupg/S.gpg-agent.ssh\n" >> ~/.zshrc
-sed -e "s/robbyrussell/agnoster/" ~/.zshrc > .zshrc
-mv ./zshrc ~/.zshrc
+PROMPT_CONTEXT="prompt_context () { }"
+if grep -Fxq "$PROMPT_CONTEXT" ~/.zshrc
+then
+    echo "Custom prompt_context already present"
+else
+    printf "$PROMPT_CONTEXT\n" >> ~/.zshrc
+fi
+SSH_AUTH="export SSH_AUTH_SOCK=/run/user/1002/gnupg/S.gpg-agent.ssh"
+if grep -Fxq "$SSH_AUTH" ~/.zshrc
+then
+    echo "SSH Auth Socket already present"
+else
+    printf "$SSH_AUTH\n" >> ~/.zshrc
+fi
+sed -e "s/robbyrussell/agnoster/" ~/.zshrc > ~/.zshrc
 
