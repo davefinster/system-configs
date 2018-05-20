@@ -86,7 +86,7 @@ then
     echo "Root Logins via SSH already forbidden"
 else
     echo "Disabling root logins via SSH"
-    sudo bash -c 'printf "$ROOT_LOGIN\n" >> /etc/ssh/sshd_config'
+    printf "$ROOT_LOGIN\n" | sudo tee -a /etc/ssh/sshd_config
 fi
 PROTOCOL="Protocol 2"
 if grep -Fxq "$PROTOCOL" /etc/ssh/sshd_config
@@ -94,7 +94,7 @@ then
     echo "SSH already set to only use Protocol 2"
 else
     echo "Setting SSH to use Protocol 2"
-    sudo bash -c 'printf "$PROTOCOL\n" >> /etc/ssh/sshd_config'
+    printf "$PROTOCOL\n" | sudo tee -a /etc/ssh/sshd_config
 fi
 ALLOWED_USERS="AllowedUsers $CURRENT_USER"
 if grep -Fxq "$ALLOWED_USERS" /etc/ssh/sshd_config
@@ -102,7 +102,7 @@ then
     echo "Logins already locked to $CURRENT_USER"
 else
     echo "Locking SSH logins to $CURRENT_USER only"
-    sudo bash -c 'printf "$ALLOWED_USERS\n" >> /etc/ssh/sshd_config'
+    printf "$ALLOWED_USERS\n" | sudo tee -a /etc/ssh/sshd_config
 fi
 STREAM_LOCAL="StreamLocalBindUnlink yes"
 if grep -Fxq "$STREAM_LOCAL" /etc/ssh/sshd_config
@@ -110,7 +110,7 @@ then
     echo "Bind Unlink already enabled"
 else
     echo "Enabling Bind Unlink for better GPG forwarding"
-    sudo bash -c 'printf "$STREAM_LOCAL\n" >> /etc/ssh/sshd_config'
+    printf "$STREAM_LOCAL\n" | sudo tee -a /etc/ssh/sshd_config
 fi
 
 #MOTD
