@@ -117,7 +117,8 @@ fi
 if [ ! -d "/etc/update-motd.d.bak" ]; then
     sudo mv /etc/update-motd.d /etc/update-motd.d.bak
 fi
-sudo cp -r ./motd /etc/update-motd.d
+sudo mkdir /etc/update-motd.d
+sudo cp -r ./motd/* /etc/update-motd.d
 sudo chown -R root /etc/update-motd.d
 sudo chgrp -R root /etc/update-motd.d
 
