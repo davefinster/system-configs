@@ -1,0 +1,6 @@
+Host <destination>
+     HostName 8.8.8.8
+     ExitOnForwardFailure yes
+     User <user>
+     RemoteForward /run/user/1002/gnupg/S.gpg-agent.ssh ~/.gnupg/S.gpg-agent.ssh
+     RemoteForward /run/user/1002/gnupg/S.gpg-agent ~/.gnupg/S.gpg-agent-extra
