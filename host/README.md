@@ -1,4 +1,9 @@
+
 # Host Setup
+
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/davefinster/system-configs/master/host/bootstrap.sh)"
+```
 
 ## Initial Requirements
 ```bash
