@@ -145,8 +145,17 @@ fi
 cp ~/.zshrc ~/.zshrc-original
 rm ~/.zshrc
 sed -e "s/robbyrussell/agnoster/" ~/.zshrc-original > ~/.zshrc
-ZSH_CUSTOM=~/.oh-my-zsh/custom
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+zsh -c "git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
 cp ~/.zshrc ~/.zshrc-original
 sed -e "s/\<git\>/git zsh-autosuggestions/" ~/.zshrc-original > ~/.zshrc
+HIGHLIGHT_STYLE="ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=240'"
+if grep -Fxq "$HIGHLIGHT_STYLE" ~/.zshrc
+then
+    echo "Highlight style already specified"
+else
+    printf "$HIGHLIGHT_STYLE\n" >> ~/.zshrc
+fi
+printf "set -g default-terminal \"screen-256color\"" > ~/.tmux.conf
 
+echo "Setup Complete - Still need to copy GPG public keys to host using"
+echo "scp ~/.gnupg/pubring.* host:./gnupg/"
