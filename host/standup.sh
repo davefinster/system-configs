@@ -82,8 +82,8 @@ sudo systemctl enable docker
 sudo bash -c 'printf "PermitRootLogin no\nProtocol 2\nAllowUsers $(whoami)\nStreamLocalBindUnlink yes\n" >> /etc/ssh/sshd_config'
 
 #MOTD
-sudo mv update-motd.d update-motd.d.bak
-sudo mv motd /etc/update-motd.d
+sudo mv /etc/update-motd.d /etc/update-motd.d.bak
+sudo mv ./motd /etc/update-motd.d
 sudo chown -R root /etc/update-motd.d
 sudo chgrp -R root /etc/update-motd.d
 
