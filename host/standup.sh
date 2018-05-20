@@ -145,4 +145,8 @@ fi
 cp ~/.zshrc ~/.zshrc-original
 rm ~/.zshrc
 sed -e "s/robbyrussell/agnoster/" ~/.zshrc-original > ~/.zshrc
+ZSH_CUSTOM=~/.oh-my-zsh/custom/plugins
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+cp .zshrc .zshrc-original
+sed -e "s/\<git\>/git zsh-autosuggestions/" .zshrc-original > .zshrc
 
