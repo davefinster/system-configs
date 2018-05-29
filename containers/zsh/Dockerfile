@@ -5,7 +5,7 @@ RUN apt-get update && \
     sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=en_US.UTF-8 && \
-    useradd --shell /usr/bin/zsh --user-group --create-home user && \
+    useradd -u 1002 --shell /usr/bin/zsh --user-group --create-home user && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

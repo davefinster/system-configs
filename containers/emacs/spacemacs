@@ -43,6 +43,7 @@ values."
      git
      markdown
      org
+     yaml
      ;;ADD-ADDITIONAL-LAYERS
      ;; (shell :variables
      ;;        shell-default-height 30
