@@ -6,7 +6,7 @@ set -e
 
 #Basic tools and support
 sudo apt-get update;
-sudo apt-get install -y zsh language-pack-en gnupg2 zfsutils-linux tmux git ssh apt-transport-https ca-certificates curl software-properties-common;
+sudo apt-get install -y zsh socat language-pack-en gnupg2 zfsutils-linux tmux git ssh apt-transport-https ca-certificates curl software-properties-common;
 
 #Ask for ZFS activity
 ZPOOL_NAME=tank
