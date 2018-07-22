@@ -142,7 +142,7 @@ sudo chgrp -R root /etc/update-motd.d
 
 #Install oh-my-zsh
 curl -O https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
-patch install.sh ohmyzsh-install.patch
+# patch install.sh ohmyzsh-install.patch
 chmod +x install.sh
 sh -c ./install.sh || true
 rm -rf install.sh install.sh.orig
