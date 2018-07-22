@@ -95,7 +95,7 @@ sudo snap install microk8s --classic --beta && sudo snap disable microk8s
 sudo mv /var/snap/microk8s/104/args/docker-daemon.json /var/snap/microk8s/104/args/docker-daemon.json.old
 printf "{"storage-driver":"zfs"}" | sudo tee /var/snap/microk8s/104/args/docker-daemon.json
 sudo mv /var/snap/microk8s/104/args/dockerd /var/snap/microk8s/104/args/dockerd.old
-sed -e "s~\${SNAP_COMMON}/var/lib/docker~/var/lib/docker~g" | sudo tee /var/snap/microk8s/104/args/dockerd
+sed -e "s~\${SNAP_COMMON}/var/lib/docker~/var/lib/docker~g" /var/snap/microk8s/104/args/dockerd | sudo tee /var/snap/microk8s/104/args/dockerd
 #Adjust SSH
 CURRENT_USER=$(whoami)
 ROOT_LOGIN="PermitRootLogin no"
