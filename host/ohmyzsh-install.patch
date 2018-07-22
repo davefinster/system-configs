@@ -1,5 +1,5 @@
 --- install.sh	2018-07-22 16:17:52.000000000 -0700
-+++ install-x.sh	2018-07-22 16:17:32.000000000 -0700
++++ install-x.sh	2018-07-22 16:30:57.000000000 -0700
 @@ -84,7 +84,7 @@
      # If this platform provides a "chsh" command (not Cygwin), do it, man!
      if hash chsh >/dev/null 2>&1; then
@@ -9,3 +9,11 @@
      # Else, suggest the user do so manually.
      else
        printf "I can't change your shell automatically because this system does not have chsh.\n"
+@@ -108,7 +108,6 @@
+   echo 'p.p.s. Get stickers and t-shirts at https://shop.planetargon.com.'
+   echo ''
+   printf "${NORMAL}"
+-  env zsh -l
+ }
+ 
+ main
