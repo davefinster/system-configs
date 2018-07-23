@@ -167,7 +167,13 @@ then
 else
     printf "$DOCKER_HOST\n" >> ~/.zshrc
 fi
-
+SNAP_PATH="export PATH=/snap/bin:$PATH"
+if grep -Fxq "$SNAP_PATH" ~/.zshrc
+then
+    echo "Snap path already present"
+else
+    printf "$SNAP_PATH\n" >> ~/.zshrc
+fi
 cp ~/.zshrc ~/.zshrc-original
 rm ~/.zshrc
 sed -e "s/robbyrussell/agnoster/" ~/.zshrc-original > ~/.zshrc
