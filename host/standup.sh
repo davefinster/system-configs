@@ -95,7 +95,7 @@ sudo snap install microk8s --classic --beta && sudo snap disable microk8s
 sudo mv /var/snap/microk8s/104/args/docker-daemon.json /var/snap/microk8s/104/args/docker-daemon.json.old
 printf "{"storage-driver":"zfs"}" | sudo tee /var/snap/microk8s/104/args/docker-daemon.json
 sudo mv /var/snap/microk8s/104/args/dockerd /var/snap/microk8s/104/args/dockerd.old
-sed -e "s~\${SNAP_COMMON}/var/lib/docker~/var/lib/docker~g" /var/snap/microk8s/104/args/dockerd | sudo tee /var/snap/microk8s/104/args/dockerd
+sed -e "s~\${SNAP_COMMON}/var/lib/docker~/var/lib/docker~g" /var/snap/microk8s/104/args/dockerd.old | sudo tee /var/snap/microk8s/104/args/dockerd
 #Adjust SSH
 CURRENT_USER=$(whoami)
 ROOT_LOGIN="PermitRootLogin no"
@@ -192,5 +192,10 @@ until $(curl --output /dev/null --silent --head --fail http://localhost:8080); d
 done
 echo "Installing Client CA Cert"
 kubectl create secret generic auth-tls-chain --from-file=ca.crt --namespace=default
+echo "Installing Docker client binaries"
+curl -O https://download.docker.com/linux/static/stable/x86_64/docker-18.06.0-ce.tgz
+tar -zxvf docker-18.06.0-ce.tgz
+sudo mv docker/docker /usr/local/sbin/docker
+sudo rm -rf docker
 echo "Setup Complete - Still need to copy GPG public keys to host using"
 echo "scp ~/.gnupg/pubring.* host:./.gnupg/"
