@@ -6,7 +6,7 @@ set -e
 
 #Basic tools and support
 sudo apt-get update;
-sudo apt-get install -y zsh language-pack-en gnupg2 zfsutils-linux tmux git ssh apt-transport-https ca-certificates curl software-properties-common;
+sudo apt-get install -y zsh socat language-pack-en gnupg2 zfsutils-linux tmux git ssh apt-transport-https ca-certificates curl software-properties-common;
 
 #Ask for ZFS activity
 ZPOOL_NAME=tank
@@ -62,22 +62,40 @@ else
     fi
 fi
 
-#Install Docker
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository \
-     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-   $(lsb_release -cs) \
-   edge"
-sudo mkdir -p /etc/docker
-if [[ $ZFS_USED == 1 ]]
+COMMON_ZFS_DATASET=$ZPOOL_NAME/common
+CREATE_COMMON_DATASET=0
+if zfs list | grep -Fq "$COMMON_ZFS_DATASET"
 then
-    sudo su -c 'echo "{\"storage-driver\":\"zfs\"}" > /etc/docker/daemon.json'
+    echo "Snap Common ZFS dataset already exists - Skipping"
+else
+    if [ -d "/var/snap/microk8s/common" ]; then
+        echo "/var/snap/microk8s/common already exists and ZFS dataset requires creation - Overwrite?"
+        read delete_answer;
+        if [[ "$delete_answer" == 'y' ]]; then
+            sudo rm -rf /var/snap/microk8s/common;
+            CREATE_COMMON_DATASET=1
+        fi
+    else
+        CREATE_COMMON_DATASET=1
+        echo "/var/snap/microk8s/common doesn't exist"
+    fi
+    if [[ $CREATE_DATASET == 1 ]]; then
+        sudo mkdir -p /var/snap/microk8s;
+        echo "Creating Common ZFS dataset";
+        sudo zfs create -o mountpoint=/var/snap/microk8s/common $COMMON_ZFS_DATASET
+    fi
 fi
-sudo apt-get update
-sudo apt-get install -y docker-ce
-sudo usermod -aG docker $(whoami)
-sudo systemctl enable docker
 
+#Create docker group
+sudo groupadd -g 2000 docker
+sudo usermod -aG docker $(whoami)
+#Install microk8s
+sudo snap install microk8s --classic --beta && sudo snap disable microk8s
+#Patch the docker config
+sudo mv /var/snap/microk8s/104/args/docker-daemon.json /var/snap/microk8s/104/args/docker-daemon.json.old
+printf "{\"storage-driver\":\"zfs\"}" | sudo tee /var/snap/microk8s/104/args/docker-daemon.json
+sudo mv /var/snap/microk8s/104/args/dockerd /var/snap/microk8s/104/args/dockerd.old
+sed -e "s~\${SNAP_COMMON}/var/lib/docker~/var/lib/docker~g" /var/snap/microk8s/104/args/dockerd.old | sudo tee /var/snap/microk8s/104/args/dockerd
 #Adjust SSH
 CURRENT_USER=$(whoami)
 ROOT_LOGIN="PermitRootLogin no"
@@ -142,6 +160,20 @@ then
 else
     printf "$SSH_AUTH\n" >> ~/.zshrc
 fi
+DOCKER_HOST="export DOCKER_HOST=unix:///var/snap/microk8s/current/docker.sock"
+if grep -Fxq "$DOCKER_HOST" ~/.zshrc
+then
+    echo "Docker Host Config already present"
+else
+    printf "$DOCKER_HOST\n" >> ~/.zshrc
+fi
+SNAP_PATH="export PATH=/snap/bin:$PATH"
+if grep -Fxq "$SNAP_PATH" ~/.zshrc
+then
+    echo "Snap path already present"
+else
+    printf "$SNAP_PATH\n" >> ~/.zshrc
+fi
 cp ~/.zshrc ~/.zshrc-original
 rm ~/.zshrc
 sed -e "s/robbyrussell/agnoster/" ~/.zshrc-original > ~/.zshrc
@@ -155,7 +187,23 @@ then
 else
     printf "$HIGHLIGHT_STYLE\n" >> ~/.zshrc
 fi
-printf "set -g default-terminal \"screen-256color\"" > ~/.tmux.conf
-
+#printf "set -g default-terminal \"screen-256color\"" > ~/.tmux.conf
+cp ./tmux.conf ~/.tmux.conf
+echo "Enabling k8s"
+sudo snap enable microk8s
+sudo snap alias microk8s.kubectl kubectl
+microk8s.enable dns dashboard storage
+echo "Waiting for k8s"
+until $(curl --output /dev/null --silent --head --fail http://localhost:8080); do
+    printf '.'
+    sleep 5
+done
+echo "Installing Client CA Cert"
+kubectl create secret generic auth-tls-chain --from-file=ca.crt --namespace=default
+echo "Installing Docker client binaries"
+curl -O https://download.docker.com/linux/static/stable/x86_64/docker-18.06.0-ce.tgz
+tar -zxvf docker-18.06.0-ce.tgz
+sudo mv docker/docker /usr/local/sbin/docker
+sudo rm -rf docker
 echo "Setup Complete - Still need to copy GPG public keys to host using"
 echo "scp ~/.gnupg/pubring.* host:./.gnupg/"

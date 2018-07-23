@@ -1,11 +1,11 @@
---- install.sh	2018-05-20 21:02:13.881269955 +0000
-+++ install-mod.sh	2018-05-20 21:01:44.917286022 +0000
+--- install.sh	2018-07-22 16:17:52.000000000 -0700
++++ install-x.sh	2018-07-22 16:30:57.000000000 -0700
 @@ -84,7 +84,7 @@
      # If this platform provides a "chsh" command (not Cygwin), do it, man!
      if hash chsh >/dev/null 2>&1; then
        printf "${BLUE}Time to change your default shell to zsh!${NORMAL}\n"
 -      chsh -s $(grep /zsh$ /etc/shells | tail -1)
-+      sudo chsh -s $(grep /zsh$ /etc/shells | tail -1) dmf
++      sudo chsh -s $(grep /zsh$ /etc/shells | tail -1) $(whoami)
      # Else, suggest the user do so manually.
      else
        printf "I can't change your shell automatically because this system does not have chsh.\n"
@@ -13,7 +13,7 @@
    echo 'p.p.s. Get stickers and t-shirts at https://shop.planetargon.com.'
    echo ''
    printf "${NORMAL}"
--  env zsh
+-  env zsh -l
  }
-
+ 
  main
