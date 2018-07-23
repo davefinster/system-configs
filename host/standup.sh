@@ -191,6 +191,7 @@ printf "set -g default-terminal \"screen-256color\"" > ~/.tmux.conf
 echo "Enabling k8s"
 sudo snap enable microk8s
 sudo snap alias microk8s.kubectl kubectl
+microk8s.enable dns dashboard storage
 echo "Waiting for k8s"
 until $(curl --output /dev/null --silent --head --fail http://localhost:8080); do
     printf '.'
