@@ -6,96 +6,13 @@ set -e
 
 #Basic tools and support
 sudo apt-get update;
-sudo apt-get install -y zsh socat language-pack-en gnupg2 zfsutils-linux tmux git ssh apt-transport-https ca-certificates curl software-properties-common;
-
-#Ask for ZFS activity
-ZPOOL_NAME=tank
-ZFS_USED=0
-if zpool list | grep -Fq "$ZPOOL_NAME"
-then
-    echo "Detected existing zpool named $ZPOOL_NAME"
-    if sudo zpool import | grep -Fq "$ZPOOL_NAME"
-    then
-        sudo zpool import $ZPOOL_NAME
-    else
-        echo "Pool already imported - Skipping"
-    fi
-    ZFS_USED=1
-else
-    echo "Did not detect zpool named $ZPOOL_NAME - Would you like to create one?"
-    read zfs_answer;
-    if [[ "$zfs_answer" == 'y' ]]; then
-        echo "The following disks are available on the system.";
-        sudo fdisk -l | grep "Disk /dev" | grep -v "loop"
-        echo "Please enter the zpool creation command (without sudo) and ensure it is named $ZPOOL_NAME";
-        read zpool_create;
-        eval sudo $zpool_create;
-        ZFS_USED=1
-    else
-        echo "Skipping ZFS creation. Docker will not be configured to use ZFS"
-    fi
-fi
-
-ZFS_DATASET=$ZPOOL_NAME/docker
-CREATE_DATASET=0
-if zfs list | grep -Fq "$ZFS_DATASET"
-then
-    echo "Docker ZFS dataset already exists - Skipping"
-else
-    if [ -d "/var/lib/docker" ]; then
-        echo "/var/lib/docker already exists and ZFS dataset requires creation - Overwrite?"
-        read delete_answer;
-        if [[ "$delete_answer" == 'y' ]]; then
-            sudo rm -rf /var/lib/docker;
-            CREATE_DATASET=1
-        fi
-    else
-        CREATE_DATASET=1
-        echo "/var/lib/docker doesn't exist"
-    fi
-    if [[ $CREATE_DATASET == 1 ]]; then
-        echo "Creating Docker ZFS dataset";
-        sudo zfs create -o mountpoint=/var/lib/docker $ZFS_DATASET
-    else
-        echo "Creation of ZFS dataset refused - Docker will not be configured to use ZFS"
-        ZFS_USED=0
-    fi
-fi
-
-COMMON_ZFS_DATASET=$ZPOOL_NAME/common
-CREATE_COMMON_DATASET=0
-if zfs list | grep -Fq "$COMMON_ZFS_DATASET"
-then
-    echo "Snap Common ZFS dataset already exists - Skipping"
-else
-    if [ -d "/var/snap/microk8s/common" ]; then
-        echo "/var/snap/microk8s/common already exists and ZFS dataset requires creation - Overwrite?"
-        read delete_answer;
-        if [[ "$delete_answer" == 'y' ]]; then
-            sudo rm -rf /var/snap/microk8s/common;
-            CREATE_COMMON_DATASET=1
-        fi
-    else
-        CREATE_COMMON_DATASET=1
-        echo "/var/snap/microk8s/common doesn't exist"
-    fi
-    if [[ $CREATE_DATASET == 1 ]]; then
-        sudo mkdir -p /var/snap/microk8s;
-        echo "Creating Common ZFS dataset";
-        sudo zfs create -o mountpoint=/var/snap/microk8s/common $COMMON_ZFS_DATASET
-    fi
-fi
+sudo apt-get install -y zsh socat language-pack-en gnupg2 tmux git ssh apt-transport-https ca-certificates curl software-properties-common;
 
 #Create docker group
 sudo groupadd -g 2000 docker
 sudo usermod -aG docker $(whoami)
 #Install microk8s
 sudo snap install microk8s --classic --beta && sudo snap disable microk8s
-#Patch the docker config
-sudo mv /var/snap/microk8s/104/args/docker-daemon.json /var/snap/microk8s/104/args/docker-daemon.json.old
-printf "{\"storage-driver\":\"zfs\"}" | sudo tee /var/snap/microk8s/104/args/docker-daemon.json
-sudo mv /var/snap/microk8s/104/args/dockerd /var/snap/microk8s/104/args/dockerd.old
-sed -e "s~\${SNAP_COMMON}/var/lib/docker~/var/lib/docker~g" /var/snap/microk8s/104/args/dockerd.old | sudo tee /var/snap/microk8s/104/args/dockerd
 #Adjust SSH
 CURRENT_USER=$(whoami)
 ROOT_LOGIN="PermitRootLogin no"
@@ -192,12 +109,12 @@ cp ./tmux.conf ~/.tmux.conf
 echo "Enabling k8s"
 sudo snap enable microk8s
 sudo snap alias microk8s.kubectl kubectl
-microk8s.enable dns dashboard storage
 echo "Waiting for k8s"
 until $(curl --output /dev/null --silent --head --fail http://localhost:8080); do
     printf '.'
     sleep 5
 done
+microk8s.enable dns dashboard storage
 echo "Installing Client CA Cert"
 kubectl create secret generic auth-tls-chain --from-file=ca.crt --namespace=default
 echo "Installing Docker client binaries"
