@@ -124,5 +124,10 @@ curl -O https://download.docker.com/linux/static/stable/x86_64/docker-18.06.0-ce
 tar -zxvf docker-18.06.0-ce.tgz
 sudo mv docker/docker /usr/local/sbin/docker
 sudo rm -rf docker
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw allow in on cbr0 && sudo ufw allow out on cbr0
+sudo systemctl enable ufw
 echo "Setup Complete - Still need to copy GPG public keys to host using"
 echo "scp ~/.gnupg/pubring.* host:./.gnupg/"
