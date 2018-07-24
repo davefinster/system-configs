@@ -106,6 +106,8 @@ else
 fi
 #printf "set -g default-terminal \"screen-256color\"" > ~/.tmux.conf
 cp ./tmux.conf ~/.tmux.conf
+echo "Disable Firewall"
+sudo systemctl disable ufw
 echo "Enabling k8s"
 sudo snap enable microk8s
 sudo snap alias microk8s.kubectl kubectl
