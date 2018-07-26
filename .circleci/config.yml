@@ -25,3 +25,9 @@ jobs:
           cd containers/golang
           docker build -t davefinster/golang:${CIRCLE_BRANCH} .
           docker push davefinster/golang:${CIRCLE_BRANCH}
+      - type: shell
+        name: Build and Ship typescript Image
+        command: |
+          cd containers/typescript
+          docker build -t davefinster/typescript:${CIRCLE_BRANCH} .
+          docker push davefinster/typescript:${CIRCLE_BRANCH}
