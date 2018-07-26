@@ -1,4 +1,4 @@
-FROM davefinster/emacs:latest
+FROM davefinster/emacs:master
 
 USER root
 

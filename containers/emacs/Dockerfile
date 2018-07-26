@@ -1,4 +1,4 @@
-FROM davefinster/zsh:latest
+FROM davefinster/zsh:master
 
 USER root
 

@@ -5,28 +5,23 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Decode Google Cloud Credentials
-          command: echo ${GOOGLE_AUTH} | base64 -i --decode > ${HOME}/gcp-key.json
-      - type: shell
-        name: Configure GCloud
-        command: |
-          gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
-          gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+          name: Configure Docker
+          command: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       - type: shell
         name: Build and Ship ZSH Image
         command: |
           cd containers/zsh
-          docker build -t ${GCR_PATH}/${GOOGLE_PROJECT_ID}/zsh:${CIRCLE_BRANCH} .
-          gcloud docker -- push ${GCR_PATH}/${GOOGLE_PROJECT_ID}/zsh:${CIRCLE_BRANCH}
+          docker build -t davefinster/zsh:${CIRCLE_BRANCH} .
+          docker push davefinster/zsh:${CIRCLE_BRANCH}
       - type: shell
         name: Build and Ship emacs Image
         command: |
           cd containers/emacs
-          docker build -t ${GCR_PATH}/${GOOGLE_PROJECT_ID}/emacs:${CIRCLE_BRANCH} .
-          gcloud docker -- push ${GCR_PATH}/${GOOGLE_PROJECT_ID}/emacs:${CIRCLE_BRANCH}
+          docker build -t davefinster/emacs:${CIRCLE_BRANCH} .
+          docker push davefinster/emacs:${CIRCLE_BRANCH}
       - type: shell
         name: Build and Ship golang Image
         command: |
           cd containers/golang
-          docker build -t ${GCR_PATH}/${GOOGLE_PROJECT_ID}/golang:${CIRCLE_BRANCH} .
-          gcloud docker -- push ${GCR_PATH}/${GOOGLE_PROJECT_ID}/golang:${CIRCLE_BRANCH}
+          docker build -t davefinster/golang:${CIRCLE_BRANCH} .
+          docker push davefinster/golang:${CIRCLE_BRANCH}
