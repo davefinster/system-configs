@@ -4,4 +4,17 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: cd containers/zsh && docker build -t davefinster/zsh:latest .
+      - run:
+          name: Decode Google Cloud Credentials
+          command: echo ${GOOGLE_AUTH} | base64 -i --decode > ${HOME}/gcp-key.json
+      - type: shell
+        name: Configure GCloud
+        command: |
+          gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
+          gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+      - type: shell
+        name: Build and Ship ZSH Image
+        command: |
+          cd containers/zsh
+          docker build -t ${GCR_PATH}/${GOOGLE_PROJECT_ID}/zsh:${CIRCLE_BRANCH} .
+          gcloud docker -- push ${GCR_PATH}/${GOOGLE_PROJECT_ID}/zsh:${CIRCLE_BRANCH}
