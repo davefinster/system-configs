@@ -3,4 +3,5 @@ jobs:
   build:
     machine: true
     steps:
-      - cd containers/zsh && docker build -t davefinster/zsh:latest .
+      - checkout
+      - run: cd containers/zsh && docker build -t davefinster/zsh:latest .
