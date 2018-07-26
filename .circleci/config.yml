@@ -31,3 +31,9 @@ jobs:
           cd containers/typescript
           docker build -t davefinster/typescript:${CIRCLE_BRANCH} .
           docker push davefinster/typescript:${CIRCLE_BRANCH}
+      - type: shell
+        name: Build and Ship javascript Image
+        command: |
+          cd containers/js
+          docker build -t davefinster/js:${CIRCLE_BRANCH} .
+          docker push davefinster/js:${CIRCLE_BRANCH}
