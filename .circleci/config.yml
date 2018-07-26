@@ -1,0 +1,6 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    steps:
+      - cd containers/zsh && docker build -t davefinster/zsh:latest .
