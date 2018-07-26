@@ -18,3 +18,15 @@ jobs:
           cd containers/zsh
           docker build -t ${GCR_PATH}/${GOOGLE_PROJECT_ID}/zsh:${CIRCLE_BRANCH} .
           gcloud docker -- push ${GCR_PATH}/${GOOGLE_PROJECT_ID}/zsh:${CIRCLE_BRANCH}
+      - type: shell
+        name: Build and Ship emacs Image
+        command: |
+          cd containers/emacs
+          docker build -t ${GCR_PATH}/${GOOGLE_PROJECT_ID}/emacs:${CIRCLE_BRANCH} .
+          gcloud docker -- push ${GCR_PATH}/${GOOGLE_PROJECT_ID}/emacs:${CIRCLE_BRANCH}
+      - type: shell
+        name: Build and Ship golang Image
+        command: |
+          cd containers/golang
+          docker build -t ${GCR_PATH}/${GOOGLE_PROJECT_ID}/golang:${CIRCLE_BRANCH} .
+          gcloud docker -- push ${GCR_PATH}/${GOOGLE_PROJECT_ID}/golang:${CIRCLE_BRANCH}
