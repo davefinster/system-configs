@@ -3,7 +3,7 @@ FROM davefinster/emacs:master
 USER root
 
 RUN apt-get update && \
-    apt-get install xz-utils && \
+    apt-get install -y build-essential xz-utils python && \
     curl -O https://nodejs.org/dist/v8.11.2/node-v8.11.2-linux-x64.tar.xz && \
     mkdir -p /usr/local && \
     tar -C /usr/local -xf node-v8.11.2-linux-x64.tar.xz && \
