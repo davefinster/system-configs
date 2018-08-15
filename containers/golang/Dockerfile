@@ -2,9 +2,9 @@ FROM davefinster/emacs:master
 
 USER root
 
-RUN curl -O https://dl.google.com/go/go1.9.6.linux-amd64.tar.gz && \
-    tar -C /usr/local -xzf go1.9.6.linux-amd64.tar.gz && \
-    rm go1.9.6.linux-amd64.tar.gz && \
+RUN curl -O https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go1.10.3.linux-amd64.tar.gz && \
+    rm go1.10.3.linux-amd64.tar.gz && \
     apt-get update && \
     apt-get install -y build-essential
 
