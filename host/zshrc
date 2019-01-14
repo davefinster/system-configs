@@ -1,0 +1,16 @@
+export ZSH="/home/dmf/.oh-my-zsh"
+export SSH_AUTH_SOCK=/run/user/1000/gnupg/S.gpg-agent.ssh
+export PATH="$HOME/.tmuxifier/bin:$PATH"
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=240'
+export DOCKER_HOST=unix:///var/snap/microk8s/current/docker.sock
+plugins=(
+  git
+  zsh-autosuggestions
+)
+source $ZSH/oh-my-zsh.sh
+DEFAULT_USER=`whoami`
+export PATH=/snap/bin:$PATH
+prompt_context () { }
+alias docker=microk8s.docker
+eval "$(tmuxifier init -)"
+export KUBECONFIG="~/empty"
